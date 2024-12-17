@@ -1,0 +1,20 @@
+{
+  "name": "tiktok-announcer",
+  "type": "module",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "engines": {
+    "node": "22 >="
+  },
+  "scripts": {
+    "start": "node --env-file=.env src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Yuriy Kvartsianiy",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "cheerio": "^1.0.0",
+    "telegraf": "^4.16.3"
+  }
+}
