@@ -13,7 +13,7 @@
   },
   "author": "Yuriy Kvartsianiy",
   "license": "ISC",
-  "description": "",
+  "description": "TikTok Announcer is your go-to tool for staying updated on your favorite TikTok creators! 🎥✨",
   "dependencies": {
     "cheerio": "^1.0.0",
     "cron": "^3.3.1",
