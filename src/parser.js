@@ -12,7 +12,7 @@ export class TiktokParser {
 	
 		return {
 			isAlive: Boolean(liveRoomInfo?.status === LIVE_STATUS),
-			lastLiveStart: liveRoomInfo.startTime,
+			lastStreamAt: liveRoomInfo.startTime,
 		};
 	}
 

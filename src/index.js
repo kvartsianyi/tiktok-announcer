@@ -1,12 +1,17 @@
-import { CHANNELS } from './config.js';
-import { TiktokParser } from './parser.js';
+import express from 'express';
+import morgan from 'morgan';
 
-for(const channel of CHANNELS) {
-	const {
-		isAlive,
-		lastLiveStart,
-	} = await TiktokParser.getStreamStats(channel);
+import * as cron from './cron.js';
+import { API_URL, PORT } from './config.js';
+import { bot } from './bot.js';
+import { log } from './utils.js';
 
-	const formatedDate = new Date(lastLiveStart * 1000).toISOString();
-	console.log(`${channel} is ${isAlive ? 'live!' : `offline. Last seen at ${formatedDate}`}`);
-}
+const app = express();
+
+app.use(express.json());
+app.use(morgan('dev'));
+app.use(await bot.createWebhook({ domain: API_URL }));
+
+app.get('/', (req, res) => res.sendStatus(200));
+
+app.listen(PORT, () => log(`Server started on port: ${PORT}`));
