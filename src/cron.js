@@ -1,12 +1,12 @@
 import { CronJob } from 'cron';
 
 import { Subscription, User } from './database.js';
-import { URL_WEB_LIVE } from './config.js'
+import { URL_WEB_LIVE, API_URL } from './config.js'
 import { TiktokParser } from './parser.js';
 import { sendMessage } from './bot.js';
 import { log, sleep } from './utils.js';
 
-const jobFn = async () => {
+const notificationJob = async () => {
 	try {
 		const subscriptions = await Subscription.find();
 
@@ -44,8 +44,28 @@ const jobFn = async () => {
 	}
 };
 
-const job = CronJob.from({
+const notifications = CronJob.from({
 	cronTime: '* * * * *',
-	onTick: jobFn,
+	onTick: notificationJob,
 });
-job.start();
+notifications.start();
+
+const keepServerAliveJob = async () => {
+	try {
+		const res = await fetch(API_URL);
+
+		if (res.status === 200) {
+			log('Server\'s life extended successfully.');
+		} else {
+			log('Failed to extend Server\'s life.');
+		}
+	} catch	(e) {
+		log(e);
+	}
+}
+
+const keepServerAlive = CronJob.from({
+	cronTime: '*/10 * * * *',
+	onTick: keepServerAliveJob,
+});
+keepServerAlive.start();
