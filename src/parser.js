@@ -11,8 +11,8 @@ export class TiktokParser {
 		const liveRoomInfo = await this.#getLiveRoomDetails(channel);
 	
 		return {
-			isAlive: Boolean(liveRoomInfo?.status === LIVE_STATUS),
-			lastStreamAt: liveRoomInfo.startTime,
+			isAlive: liveRoomInfo ? Boolean(liveRoomInfo.status === LIVE_STATUS) : false,
+			lastStreamAt: liveRoomInfo ? liveRoomInfo.startTime : null,
 		};
 	}
 
@@ -29,7 +29,7 @@ export class TiktokParser {
 		
 		const sigiState = JSON.parse(sigiScript);
 
-		if (!sigiState?.LiveRoom) throw new Error('Can\'t find LiveRoom in #SIGI_STATE');
+		if (!sigiState?.LiveRoom) return null;
 
 		const liveRoomInfo = sigiState?.LiveRoom?.liveRoomUserInfo?.liveRoom;
 
