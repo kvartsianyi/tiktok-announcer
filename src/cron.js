@@ -21,6 +21,7 @@ const notificationJob = async () => {
 					isAlive,
 					lastStreamAt: updatedStreamAt,
 				} = await TiktokParser.getStreamStats(ttNickname);
+				await sleep(1000);
 				
 				const isStreamNew = dbStreamAt < updatedStreamAt;
 				if (!isAlive || !isStreamNew) continue;
@@ -34,7 +35,6 @@ const notificationJob = async () => {
 				const message = `🔔 ${ttNickname} is live! ${URL_WEB_LIVE.replace('{channel}', ttNickname)}`;
 
 				await sendMessage(dbUser.tgChatId, message);
-				await sleep(100);
 			} catch (e) {
 				log(e);
 			}
@@ -45,8 +45,9 @@ const notificationJob = async () => {
 };
 
 const notifications = CronJob.from({
-	cronTime: '* * * * *',
+	cronTime: '*/3 * * * *',
 	onTick: notificationJob,
+	waitForCompletion: true,
 });
 notifications.start();
 
