@@ -45,7 +45,7 @@ const notificationJob = async () => {
 };
 
 const notifications = CronJob.from({
-	cronTime: '*/3 * * * *',
+	cronTime: '*/5 * * * *',
 	onTick: notificationJob,
 	waitForCompletion: true,
 });
