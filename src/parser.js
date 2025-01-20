@@ -3,17 +3,15 @@ import * as cheerio from 'cheerio';
 import {
 	TT_HEADERS,
 	URL_WEB_LIVE,
-	LIVE_STATUS,
+	TT_API_CHECK_LIVE_URL,
 } from './config.js';
+import { log } from './utils.js';
 
 export class TiktokParser {
-	static async getStreamStats(channel) {
-		const liveRoomInfo = await this.#getLiveRoomDetails(channel);
-	
-		return {
-			isAlive: liveRoomInfo ? Boolean(liveRoomInfo.status === LIVE_STATUS) : false,
-			lastStreamAt: liveRoomInfo ? liveRoomInfo.startTime : null,
-		};
+	static async getStreamData(channel) {
+		const { user } = await this.#getLiveRoomDetails(channel);
+
+		return { roomId: user?.roomId };
 	}
 
 	static async #getLiveRoomDetails(channel) {
@@ -31,8 +29,18 @@ export class TiktokParser {
 
 		if (!sigiState?.LiveRoom) return null;
 
-		const liveRoomInfo = sigiState?.LiveRoom?.liveRoomUserInfo?.liveRoom;
+		return sigiState?.LiveRoom?.liveRoomUserInfo;
+	}
 
-		return liveRoomInfo;
+	static async isAlive(roomId) {
+		try {
+			const liveUrl = TT_API_CHECK_LIVE_URL.replace('{roomIds}', roomId);
+			const response = await fetch(liveUrl);
+			const { data } = await response.json();
+
+			return data[0]?.alive;
+		} catch (e) {
+			log(e);
+		}
 	}
 }

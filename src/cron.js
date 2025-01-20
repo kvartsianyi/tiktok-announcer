@@ -14,27 +14,27 @@ const notificationJob = async () => {
 			try {
 				const {
 					ttNickname,
-					lastStreamAt: dbStreamAt,
+					ttRoomId,
+					alive: dbAlive,
 					user,
 				} = subscription;
-				const {
-					isAlive,
-					lastStreamAt: updatedStreamAt,
-				} = await TiktokParser.getStreamStats(ttNickname);
+				const ttAlive = await TiktokParser.isAlive(ttRoomId);
+				await sleep(100); // To avoid tiktok shadow ban
 				
-				const isStreamNew = dbStreamAt < updatedStreamAt;
-				if (!isAlive || !isStreamNew) continue;
+				if (dbAlive !== ttAlive) {
+					subscription.alive = ttAlive;
+					await subscription.save();
+				};
 
-				subscription.lastStreamAt = updatedStreamAt;
-				subscription.save();
+				const shouldNotify = !dbAlive && ttAlive;
+				if (!shouldNotify) continue;
 
 				const dbUser = await User.findOne({ _id: user });
 				if (!dbUser) throw new Error('User not found');
 
-				const message = `🔔 ${ttNickname} is live! ${URL_WEB_LIVE.replace('{channel}', ttNickname)}`;
+				const message = `🔔 ${ttNickname} is live!\n${URL_WEB_LIVE.replace('{channel}', ttNickname)}`;
 
 				await sendMessage(dbUser.tgChatId, message);
-				await sleep(100);
 			} catch (e) {
 				log(e);
 			}

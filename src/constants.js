@@ -9,3 +9,4 @@ export const WELLCOM_MESSAGE = `👋 Welcome, {nickname}.
 
 export const SUBSCRIBE_MESSAGE = '🔔 <strong>{nickname} =></strong> You\'ve successfully subscribed to notifications!🎉';
 export const UNSUBSCRIBE_MESSAGE = '🚫 <strong>{nickname} =></strong> You\'ve successfully unsubscribed from notifications!'
+export const SOMETHING_WENT_WRONG_MESSAGE = 'Something went wrong. Please try again later.';

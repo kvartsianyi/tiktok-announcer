@@ -8,6 +8,7 @@ import {
 } from './constants.js';
 import { User, Subscription } from './database.js';
 import { log, getTgChatId } from './utils.js';
+import { TiktokParser } from './parser.js';
 
 export const bot = new Telegraf(BOT_TOKEN);
 
@@ -45,8 +46,10 @@ bot.on('message', async ctx => {
 		});
 	
 		if (!subscription) {
+			const { roomId: ttRoomId } = await TiktokParser.getStreamData(ttNickname);
 			const newSubscription = new Subscription({
 				ttNickname,
+				ttRoomId,
 				user,
 			});
 			await newSubscription.save();
@@ -58,6 +61,7 @@ bot.on('message', async ctx => {
 		await ctx.replyWithHTML(UNSUBSCRIBE_MESSAGE.replace('{nickname}', ttNickname));
 	} catch (e) {
 		log(e);
+		await ctx.replyWithHTML(SOMETHING_WENT_WRONG_MESSAGE);
 	}
 });
 

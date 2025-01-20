@@ -37,9 +37,14 @@ const subscriptionSchema = new Schema({
     required: true,
     trim: true,
   },
-	lastStreamAt: {
-		type: Number,
-		default: null,
+	alive: {
+		type: Boolean,
+    required: true,
+		default: false,
+  },
+  ttRoomId: {
+		type: String,
+    required: true,
   },
 	user: {
 		type: Schema.Types.ObjectId,

@@ -16,7 +16,8 @@ const TT_HEADERS = {
 	'Accept-Language': 'en-US,en;q=0.9',
 	'Accept-Encoding': 'gzip, deflate',
 };
-const URL_WEB_LIVE = "https://www.tiktok.com/@{channel}/live";
+const URL_WEB_LIVE = 'https://www.tiktok.com/@{channel}/live';
+const TT_API_CHECK_LIVE_URL = 'https://webcast.tiktok.com/webcast/room/check_alive/?aid=1988&room_ids={roomIds}';
 const LIVE_STATUS = 2;
 const IS_PRODUCTION = NODE_ENV.trim() === 'production';
 
@@ -25,6 +26,7 @@ PORT ??= 3000;
 export {
 	TT_HEADERS,
 	URL_WEB_LIVE,
+	TT_API_CHECK_LIVE_URL,
 	LIVE_STATUS,
 	PORT,
 	API_URL,
