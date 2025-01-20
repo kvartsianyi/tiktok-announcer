@@ -25,7 +25,11 @@ export class TiktokParser {
 		const $ = cheerio.load(pageHtml);
 		const sigiScript = $('#SIGI_STATE').html();
 
-		if (!sigiScript) throw new Error('Can\'t find #SIGI_STATE');
+		if (!sigiScript) {
+			log(`Can\'t find #SIGI_STATE for ${channel}`);
+			log('Page html:', pageHtml);
+			throw new Error('Can\'t find #SIGI_STATE');
+		}
 		
 		const sigiState = JSON.parse(sigiScript);
 
