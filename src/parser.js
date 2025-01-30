@@ -5,6 +5,7 @@ import {
 	URL_WEB_LIVE,
 	LIVE_STATUS,
 } from './config.js';
+import { log } from './utils.js';
 
 export class TiktokParser {
 	static async getStreamStats(channel) {
