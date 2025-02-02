@@ -1,7 +1,7 @@
 import { CronJob } from 'cron';
 
 import { Subscription, User } from './database.js';
-import { URL_WEB_LIVE, API_URL } from './config.js'
+import { WEB_LIVE_URL, API_URL } from './config.js'
 import { TiktokParser } from './parser.js';
 import { sendMessage } from './bot.js';
 import { log, sleep } from './utils.js';
@@ -17,24 +17,28 @@ const notificationJob = async () => {
 					lastStreamAt: dbStreamAt,
 					user,
 				} = subscription;
+				const tiktokParser = new TiktokParser();
 				const {
 					isAlive,
 					lastStreamAt: updatedStreamAt,
-				} = await TiktokParser.getStreamStats(ttNickname);
-				await sleep(1000);
+				} = await tiktokParser.getLiveRoomInfo(ttNickname);
 				
-				const isStreamNew = dbStreamAt < updatedStreamAt;
-				if (!isAlive || !isStreamNew) continue;
+				const isDifferentStream = dbStreamAt < updatedStreamAt;
+				const sendNotification = isAlive && isDifferentStream;
 
-				subscription.lastStreamAt = updatedStreamAt;
-				subscription.save();
+				if (sendNotification) {
+					subscription.lastStreamAt = updatedStreamAt;
+					subscription.save();
+	
+					const dbUser = await User.findOne({ _id: user });
+					if (!dbUser) throw new Error('User not found');
+	
+					const message = `🔔 ${ttNickname} is live!\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
+					await sendMessage(dbUser.tgChatId, message);
+				};
 
-				const dbUser = await User.findOne({ _id: user });
-				if (!dbUser) throw new Error('User not found');
-
-				const message = `🔔 ${ttNickname} is live! ${URL_WEB_LIVE.replace('{channel}', ttNickname)}`;
-
-				await sendMessage(dbUser.tgChatId, message);
+				// Trottle to avoid rate limiting from TikTok
+				await sleep(1000);
 			} catch (e) {
 				log(e);
 			}
