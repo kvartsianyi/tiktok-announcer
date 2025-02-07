@@ -1,10 +1,11 @@
 import { CronJob } from 'cron';
+import axios from 'axios';
 
 import { Subscription, User } from './database.js';
 import { WEB_LIVE_URL, API_URL } from './config.js'
 import { TiktokParser } from './parser.js';
 import { sendMessage } from './bot.js';
-import { log, sleep } from './utils.js';
+import { log, logMemoryUsage, sleep } from './utils.js';
 
 const notificationJob = async () => {
 	try {
@@ -57,10 +58,11 @@ notifications.start();
 
 const keepServerAliveJob = async () => {
 	try {
-		const res = await fetch(API_URL);
+		const res = await axios.get(API_URL);
 
 		if (res.status === 200) {
-			log('Server\'s life extended successfully.');
+			log('💖 Server\'s life extended successfully.');
+			logMemoryUsage();
 		} else {
 			log('Failed to extend Server\'s life.');
 		}
