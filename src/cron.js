@@ -2,14 +2,21 @@ import { CronJob } from 'cron';
 import axios from 'axios';
 
 import { Subscription, User } from './database.js';
-import { WEB_LIVE_URL, API_URL } from './config.js'
+import {
+	WEB_LIVE_URL,
+	API_URL,
+	NOTIFICATIONS_JOB_SCHEDULE,
+} from './config.js'
 import { TiktokParser } from './parser.js';
 import { sendMessage } from './bot.js';
 import { log, sleep } from './utils.js';
 
-const notificationJob = async () => {
+const notificationsJob = async () => {
 	try {
+		log('[notificationsJob] 📬 Job started...');
+
 		const subscriptions = await Subscription.find();
+		let notificationsCount = 0;
 
 		for(const subscription of subscriptions) {
 			try {
@@ -36,6 +43,8 @@ const notificationJob = async () => {
 	
 					const message = `🔔 ${ttNickname} is live!\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
 					await sendMessage(dbUser.tgChatId, message);
+
+					notificationsCount++;
 				};
 
 				// Trottle to avoid rate limiting from TikTok
@@ -44,14 +53,16 @@ const notificationJob = async () => {
 				log(e);
 			}
 		}
+
+		log('[notificationsJob] 📬 Job completed. Notifications sent:', notificationsCount);
 	} catch (e) {
 		log(e);
 	}
 };
 
 const notifications = CronJob.from({
-	cronTime: '*/5 * * * *',
-	onTick: notificationJob,
+	cronTime: NOTIFICATIONS_JOB_SCHEDULE,
+	onTick: notificationsJob,
 	waitForCompletion: true,
 });
 notifications.start();
