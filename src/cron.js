@@ -5,7 +5,7 @@ import { Subscription, User } from './database.js';
 import { WEB_LIVE_URL, API_URL } from './config.js'
 import { TiktokParser } from './parser.js';
 import { sendMessage } from './bot.js';
-import { log, logMemoryUsage, sleep } from './utils.js';
+import { log, sleep } from './utils.js';
 
 const notificationJob = async () => {
 	try {
@@ -62,7 +62,6 @@ const keepServerAliveJob = async () => {
 
 		if (res.status === 200) {
 			log('💖 Server\'s life extended successfully.');
-			logMemoryUsage();
 		} else {
 			log('Failed to extend Server\'s life.');
 		}
