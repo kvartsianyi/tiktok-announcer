@@ -15,7 +15,10 @@ export class TiktokParser {
 	constructor() {
 		this.#httpClient = axios.create({
       timeout: 10000,
-      headers: DEFAULT_TT_REQUEST_HEADERS,
+      headers: {
+				...DEFAULT_TT_REQUEST_HEADERS,
+				Cookie: process.env.COOKIE,
+			},
     });
 	}
 
@@ -38,8 +41,10 @@ export class TiktokParser {
 		}
 
 		return {
-			isAlive: liveRoomInfo ? Boolean(liveRoomInfo.status === LIVE_STATUS) : false,
-			lastStreamAt: liveRoomInfo ? liveRoomInfo.startTime : null,
+			isAlive: Boolean(liveRoomInfo?.status === LIVE_STATUS),
+			lastStreamAt: liveRoomInfo?.startTime || null,
+			// If streamData is not available, it means authorization is required
+			streamUrl: liveRoomInfo?.streamData ? await this.getStreamUrl(liveRoomInfo?.streamData) : null,
 		};
 	}
 
@@ -76,4 +81,33 @@ export class TiktokParser {
 
 		return liveRoomInfo;
 	}
+
+	async getStreamUrl(streamRawData) {
+		const streams = this.#parseStreams(streamRawData);
+    const originalStreamUrl = this.#findBestStreamQualityUrl(streams);
+
+    return this.#isStreamAccessible(originalStreamUrl);
+	}
+
+	#parseStreams(streamData) {
+    const { stream_data } = streamData?.pull_data;
+  
+    return JSON.parse(stream_data)?.data;
+  }
+  
+  #findBestStreamQualityUrl(streams, type = 'flv') {
+    return streams?.ld?.main?.[type];
+  }
+
+	async #isStreamAccessible(streamUrl) {
+			try {
+				const { status } = await this.#httpClient.head(streamUrl, {
+					responseType: 'stream',
+				});
+	
+				return status === 200 ? streamUrl : null;
+			} catch (e) {
+				return null;
+			}
+		}
 }

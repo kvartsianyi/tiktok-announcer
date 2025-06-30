@@ -1,6 +1,7 @@
 import { connectToDb, closeDbConnection, Subscription } from './database.js';
 import { TiktokParser } from './parser.js';
-import { sendTelegramMessage } from './telegram.js';
+import { captureScreenshot } from './ffmpeg.js';
+import { sendMessage, sendPhoto } from './telegram.js';
 import { runWithDelay, withTimer } from './utils.js';
 import { WEB_LIVE_URL } from './config.js';
 import { logger } from './logger.js';
@@ -12,6 +13,31 @@ for (const key of requiredEnv) {
     throw new Error(`Missing required env variable: ${key}`);
   }
 }
+
+const shouldNotify = (isAlive, ttLastStreamAt, dbLastStreamAt) => {
+  const isDifferentStream =
+    ttLastStreamAt &&
+    (!dbLastStreamAt || dbLastStreamAt < ttLastStreamAt);
+
+  return isAlive && isDifferentStream;
+};
+
+const getThumbnail = async (streamUrl) => {
+  try {
+    return await captureScreenshot(streamUrl);
+  } catch (e) {
+    logger.error(`[notificationsJob] Screenshot error:`, e);
+    return null;
+  }
+};
+
+const sendNotification = async (chatId, message, image) => {
+  if (image) {
+    return sendPhoto(chatId, message, image);
+  }
+
+  return sendMessage(chatId, message);
+};
 
 const job = async () => {
 	try {
@@ -26,26 +52,29 @@ const job = async () => {
 			const { ttNickname, lastStreamAt: dbLastStreamAt } = subscription;
 
 			try {
-				const { isAlive, lastStreamAt: ttLastStreamAt } = await tiktokParser.getLiveRoomInfo(ttNickname);
-				
-				const isDifferentStream =
-				ttLastStreamAt &&
-				(!dbLastStreamAt || dbLastStreamAt < ttLastStreamAt);
-				const sendNotification = isAlive && isDifferentStream;
+				const {
+					isAlive,
+					lastStreamAt: ttLastStreamAt,
+					streamUrl,
+				} = await tiktokParser.getLiveRoomInfo(ttNickname);
 
 				if (process.stdout.isTTY) {
-					logger.info(`Checked ${ttNickname}: alive=${isAlive}`);
+					logger.info(`Checked ${ttNickname}: alive=${isAlive} streamUrl:${streamUrl}`);
 				}
-				
-				if (sendNotification) {
-					subscription.lastStreamAt = ttLastStreamAt;
-					await subscription.save();
-					
-					const message = `🔔 ${ttNickname} is live!\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
-					await sendTelegramMessage(process.env.TG_CHAT_ID, message);
-				};
 
-				return sendNotification;
+				if (!shouldNotify(isAlive, ttLastStreamAt, dbLastStreamAt)) return false;
+				
+				subscription.lastStreamAt = ttLastStreamAt;
+				await subscription.save();
+				
+				const message = `🔔 ${ttNickname} is live!${process.env.THUMBNAIL_FEATURE === 'true' && !streamUrl ? ' [THUMBNAIL]: Authorization required' : ''}\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
+				const thumbnail = process.env.THUMBNAIL_FEATURE === 'true' && streamUrl
+					? await getThumbnail(streamUrl) 
+					: null;
+
+				await sendNotification(process.env.TG_CHAT_ID, message, thumbnail);
+
+				return true;
 			} catch (e) {
 				logger.error(`Error for ${ttNickname}:`, e.stack);
 				return false;
