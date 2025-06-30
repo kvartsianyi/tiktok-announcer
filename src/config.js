@@ -53,6 +53,23 @@ const DEFAULT_TT_CLIENT_PARAMS = {
 	webcast_sdk_version: '1.3.0',
 	update_version_code: '1.3.0'
 };
+const FFMPEG_SCREENSHOT_OPTIONS = {
+	inputOptions: [
+		'-fflags', 'nobuffer',
+		'-flags', 'low_delay',
+		'-re',
+		'-probesize', '5000000',
+		'-analyzeduration', '100000',
+	],
+	outputFormat: 'image2',
+	outputOptions: [
+		'-vframes', '1',
+		'-an',
+		'-f', 'image2pipe',
+		'-vcodec', 'mjpeg'
+	],
+};
+
 const WEB_LIVE_URL = 'https://www.tiktok.com/@{uniqueId}/live';
 const API_LIVE_ROOM_URL = 'https://www.tiktok.com/api-live/user/room/';
 const LIVE_STATUS = 2;
@@ -70,4 +87,5 @@ export {
 	DEFAULT_TT_REQUEST_HEADERS,
 	DEFAULT_TT_CLIENT_PARAMS,
 	NOTIFICATIONS_JOB_SCHEDULE,
+	FFMPEG_SCREENSHOT_OPTIONS,
 };

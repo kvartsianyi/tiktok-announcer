@@ -63,3 +63,6 @@ bot.on('message', async ctx => {
 
 export const sendMessage = async (chatId, message) =>
 	bot.telegram.sendMessage(chatId, message);
+
+export const sendPhoto = async (chatId, source, caption) =>
+	bot.telegram.sendPhoto(chatId, { source }, { caption });
