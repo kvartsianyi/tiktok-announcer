@@ -8,9 +8,8 @@ import {
 	NOTIFICATIONS_JOB_SCHEDULE,
 } from './config.js'
 import { TiktokParser } from './parser.js';
-import { sendMessage, sendPhoto } from './bot.js';
+import { sendMessage } from './bot.js';
 import { log, sleep } from './utils.js';
-import { captureScreenshot } from './ffmpeg.js';
 
 const notificationsJob = async () => {
 	try {
@@ -30,7 +29,6 @@ const notificationsJob = async () => {
 				const {
 					isAlive,
 					lastStreamAt: updatedStreamAt,
-					streamUrl,
 				} = await tiktokParser.getLiveRoomInfo(ttNickname);
 				
 				const isDifferentStream = dbStreamAt < updatedStreamAt;
@@ -44,22 +42,7 @@ const notificationsJob = async () => {
 					if (!dbUser) throw new Error('User not found');
 	
 					const message = `🔔 ${ttNickname} is live!\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
-
-					let thumbnail;
-					if (streamUrl) {
-						try {
-							thumbnail = await captureScreenshot(streamUrl);
-						} catch (e) {
-							log(`[notificationsJob] Error capturing screenshot for ${ttNickname}:`, e);
-							thumbnail = null;
-						}
-					}
-
-					if (thumbnail) {
-						await sendPhoto(dbUser.tgChatId, thumbnail, message);
-					} else {
-						await sendMessage(dbUser.tgChatId, message);
-					}
+					await sendMessage(dbUser.tgChatId, message);
 
 					notificationsCount++;
 				};
