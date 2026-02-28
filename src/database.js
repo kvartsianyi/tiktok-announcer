@@ -1,35 +1,20 @@
 import mongoose from 'mongoose';
 
-import { MONGO_URL, IS_PRODUCTION } from './config.js';
-import { log } from './utils.js';
+import { logger } from './logger.js';
 
-if (!IS_PRODUCTION) mongoose.set('debug', true);
+export const connectToDb = async (url) => {
+  await mongoose.connect(url, {
+    serverSelectionTimeoutMS: 10000,
+  });
+  logger.info('Database connected!');
+};
 
-await mongoose.connect(MONGO_URL);
-
-process.once('SIGINT', () => mongoose.connection.close());
-process.once('SIGTERM', () => mongoose.connection.close());
-
-log('Database connected successfully!');
+export const closeDbConnection = async () => {
+  await mongoose.connection.close();
+  logger.info('Database connection closed!');
+};
 
 const { Schema, model } = mongoose;
-
-const userSchema = new Schema({
-  tgChatId: {
-    type: Number,
-    required: true,
-    unique: true,
-  },
-	tgNickname: {
-    type: String,
-    required: true,
-    trim: true,
-  },
-}, {
-  timestamps: true,
-});
-
-export const User = model('User', userSchema);
 
 const subscriptionSchema = new Schema({
   ttNickname: {
@@ -41,13 +26,8 @@ const subscriptionSchema = new Schema({
 		type: Number,
 		default: null,
   },
-	user: {
-		type: Schema.Types.ObjectId,
-		ref: 'User',
-		required: true,
-	}
 }, {
   timestamps: true,
 });
 
-export const Subscription = model('Subscription', subscriptionSchema);
+export const Subscription = mongoose.models.Subscription || model('Subscription', subscriptionSchema);

@@ -1,16 +1,3 @@
-const {
-	API_URL,
-	BOT_TOKEN,
-	MONGO_URL,
-	NODE_ENV,
-	NOTIFICATIONS_JOB_SCHEDULE,
-} = process.env;
-let { PORT } = process.env;
-
-PORT ??= 3000;
-
-const IS_PRODUCTION = NODE_ENV.trim() === 'production';
-
 const DEFAULT_TT_REQUEST_HEADERS = {
 	Connection: 'keep-alive',
 	'Cache-Control': 'max-age=0',
@@ -58,16 +45,9 @@ const API_LIVE_ROOM_URL = 'https://www.tiktok.com/api-live/user/room/';
 const LIVE_STATUS = 2;
 
 export {
-	PORT,
-	API_URL,
-	BOT_TOKEN,
-	MONGO_URL,
-	NODE_ENV,
-	IS_PRODUCTION,
 	WEB_LIVE_URL,
 	API_LIVE_ROOM_URL,
 	LIVE_STATUS,
 	DEFAULT_TT_REQUEST_HEADERS,
 	DEFAULT_TT_CLIENT_PARAMS,
-	NOTIFICATIONS_JOB_SCHEDULE,
 };
