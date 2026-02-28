@@ -1,39 +1,30 @@
-import { logger } from './logger.js';
+export const log = (message, ...args) =>
+	console.log(message, ...args.filter(arg => typeof arg !== 'undefined'));
+export const sleep = ms => new Promise(resolve => setTimeout(resolve, ms));
+export const getTgChatId = ctx => ctx.update?.message?.from?.id;
 
-export const sleep = ms => new Promise(res => setTimeout(res, ms));
+export const logMemoryUsage = () => {
+  const memoryUsage = process.memoryUsage();
 
-export const runWithDelay = async (tasks, delayMs = 500) => {
-  const results = [];
-
-  for (const task of tasks) {
-    try {
-      const result = await task();
-      results.push({ status: 'fulfilled', value: result });
-    } catch (error) {
-      results.push({ status: 'rejected', reason: error });
-    }
-
-    if (delayMs) {
-      await sleep(delayMs);
-    }
-  }
-
-  return results;
+  log('📌 Memory usage:', {
+    rss: `${(memoryUsage.rss / 1024 / 1024).toFixed(2)} MB`, // Total memory used by the process
+    heapTotal: `${(memoryUsage.heapTotal / 1024 / 1024).toFixed(2)} MB`, // Total allocated heap memory
+    heapUsed: `${(memoryUsage.heapUsed / 1024 / 1024).toFixed(2)} MB`, // Memory used by heap
+    external: `${(memoryUsage.external / 1024 / 1024).toFixed(2)} MB`, // Memory used by external V8 objects
+  });
 };
 
-export const createJobTimer = (jobName = 'Job') => {
-  const start = Date.now();
+export const gracefulShutdown = server => (signal, code) => {
+  log(`Received (signal: ${signal}, code: ${code}), shutting down gracefully...`);
 
-  return () => {
-    const durationMs = Date.now() - start;
-    const durationSec = (durationMs / 1000).toFixed(2);
-    logger.info(`${jobName} finished in ${durationSec}s`);
-  };
-};
+  server.close(() => {
+    log('HTTP server successfully closed.');
+    process.exit(0);
+  });
 
-export const withTimer = (fn, jobName = 'Job') => async (...args) => {
-  const stopTimer = createJobTimer(jobName);
-  const result = await fn(...args);
-  stopTimer();
-  return result;
+  // Force exit if shutdown takes too long
+  setTimeout(() => {
+    log('Forcing shutdown...');
+    process.exit(1);
+  }, 5000).unref(); // Prevents setTimeout from keeping the process alive
 };
