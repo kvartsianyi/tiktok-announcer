@@ -2,12 +2,14 @@
   "name": "tiktok-announcer",
   "type": "module",
   "version": "1.0.0",
-  "main": "src/job.js",
+  "main": "src/index.js",
   "engines": {
     "node": "22.0.0"
   },
   "scripts": {
-    "start": "node --env-file=.env src/job.js"
+    "start": "NODE_ENV=production node src/index.js",
+    "dev": "SET NODE_ENV=development & nodemon --no-deprecation --env-file=.env src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Yuriy Kvartsianiy",
   "license": "ISC",
@@ -15,6 +17,14 @@
   "dependencies": {
     "axios": "^1.7.9",
     "cheerio": "^1.0.0",
-    "mongoose": "^8.9.1"
+    "cron": "^3.3.1",
+    "express": "^4.21.2",
+    "mongoose": "^8.9.1",
+    "morgan": "^1.10.0",
+    "telegraf": "^4.16.3"
+  },
+  "devDependencies": {
+    "@telegraf/types": "^7.1.0",
+    "nodemon": "^3.1.9"
   }
 }
