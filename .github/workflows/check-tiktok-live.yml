@@ -10,9 +10,9 @@ jobs:
   check-live:
     runs-on: ubuntu-latest
 
-    concurrency:
-      group: tiktok-live-job
-      cancel-in-progress: true
+    # concurrency:
+    #   group: tiktok-live-job
+    #   cancel-in-progress: true
 
     steps:
       - uses: actions/checkout@v4
