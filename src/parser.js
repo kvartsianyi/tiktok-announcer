@@ -34,7 +34,7 @@ export class TiktokParser {
 				liveRoomInfo = await this.#getLiveRoomInfoFromHtml(uniqueId);
 			}
 		} catch (e) {
-			throw new Error(`Failed to retrieve live room info for ${uniqueId}. ${err.message}`);
+			throw new Error(`Failed to retrieve live room info for ${uniqueId}. ${e.message}`);
 		}
 
 		return {
