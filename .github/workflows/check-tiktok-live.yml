@@ -1,9 +1,8 @@
 name: Check TikTok Live
 
 on:
-  push:
-  schedule:
-    - cron: "*/5 * * * *"
+  repository_dispatch:
+    types: [run-tiktok-job]
   workflow_dispatch:
 
 jobs:
