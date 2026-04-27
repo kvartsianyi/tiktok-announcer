@@ -5,8 +5,7 @@ import ffmpegPath from 'ffmpeg-static';
 
 import { FFMPEG_SCREENSHOT_OPTIONS } from './config.js';
 
-// ffmpeg.setFfmpegPath(ffmpegPath);
-ffmpeg.setFfmpegPath('/usr/bin/ffmpeg');
+ffmpeg.setFfmpegPath(process.stdout.isTTY ? ffmpegPath : '/usr/bin/ffmpeg');
 
 
 export const captureScreenshot = async (streamUrl) => {
