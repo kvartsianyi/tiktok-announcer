@@ -58,9 +58,8 @@ const job = async () => {
 					streamUrl,
 				} = await tiktokParser.getLiveRoomInfo(ttNickname);
 
-				if (process.stdout.isTTY) {
-					logger.info(`Checked ${ttNickname}: alive=${isAlive} streamUrl:${streamUrl}`);
-				}
+				logger.info(`Checked ${ttNickname}: alive=${isAlive} streamUrl:${streamUrl}`);
+
 
 				if (!shouldNotify(isAlive, ttLastStreamAt, dbLastStreamAt)) return false;
 				
