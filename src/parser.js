@@ -101,7 +101,7 @@ export class TiktokParser {
 
 	async #isStreamAccessible(streamUrl) {
 			try {
-				const { status } = await this.#httpClient.head(streamUrl, {
+				const { status } = await this.#httpClient.get(streamUrl, {
 					responseType: 'stream',
 				});
 	
