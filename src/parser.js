@@ -96,7 +96,7 @@ export class TiktokParser {
   }
   
   #findBestStreamQualityUrl(streams, type = 'flv') {
-    return streams?.ld?.main?.[type];
+    return streams?.hd?.main?.[type] || streams?.ld?.main?.[type];
   }
 
 	async #isStreamAccessible(streamUrl) {
