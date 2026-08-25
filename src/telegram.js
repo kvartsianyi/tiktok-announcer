@@ -10,6 +10,7 @@ export const sendMessage = async (chatId, text) => {
 	return telegramApi.post('/sendMessage', {
 		chat_id: chatId,
 		text,
+		parse_mode: 'HTML',
 	});
 };
 
@@ -18,6 +19,7 @@ export const sendPhoto = async (chatId, caption, buffer, filename = "image.jpg")
 
   form.append('chat_id', chatId);
   form.append('caption', caption);
+	form.append('parse_mode', 'HTML');
 
 	form.append('photo', buffer, {
     filename,

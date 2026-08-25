@@ -66,7 +66,7 @@ const job = async () => {
 				subscription.lastStreamAt = ttLastStreamAt;
 				await subscription.save();
 				
-				const message = `🔔 ${ttNickname} is live!${process.env.THUMBNAIL_FEATURE === 'true' && !streamUrl ? ' [THUMBNAIL]: Authorization required' : ''}\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
+				const message = `🔔 <code>${ttNickname}</code> is live!${process.env.THUMBNAIL_FEATURE === 'true' && !streamUrl ? ' [THUMBNAIL]: Authorization required' : ''}\n${WEB_LIVE_URL.replace('{uniqueId}', ttNickname)}`;
 				const thumbnail = process.env.THUMBNAIL_FEATURE === 'true' && streamUrl
 					? await getThumbnail(streamUrl) 
 					: null;
